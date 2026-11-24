@@ -16,7 +16,20 @@ from pathlib import Path
 BIO = "I have 175 billion parameters and zero game. But I did read all 12 of your photos' metadata, and you have excellent taste in sunsets."
 
 
+def validate_bio(bio: str) -> None:
+    """Fail closed before anything is written: the competition gate is
+    one single line, 1-180 characters, pure ASCII. Any violation means
+    no output file is produced and the process exits non-zero."""
+    if "\n" in bio or "\r" in bio:
+        raise SystemExit("bio is not a single line")
+    if not 1 <= len(bio) <= 180:
+        raise SystemExit(f"bio length {len(bio)} is outside 1-180 characters")
+    if not bio.isascii():
+        raise SystemExit("bio is not pure ASCII")
+
+
 def main() -> None:
+    validate_bio(BIO)
     output_dir = Path(os.environ.get("MAKEFUN_OUTPUT_DIR", "/output"))
     output_dir.mkdir(parents=True, exist_ok=True)
     dest = output_dir / "entry.txt"
